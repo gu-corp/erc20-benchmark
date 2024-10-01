@@ -12,4 +12,8 @@ contract StandardERC20Test is ERC20GasProfileBase {
         initializeTest("StandardERC20");
         standardERC20.mint(sender, mintAmount);
     }
+
+    function erc20Transfer() internal override {
+        ERC20(token).transfer(recipient, transferAmount);
+    }
 }

@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "solady/tokens/ERC20.sol";
 
 abstract contract ERC20GasProfileBase is Test {
     string public name;
@@ -25,12 +24,12 @@ abstract contract ERC20GasProfileBase is Test {
         vm.startPrank(sender);
     }
 
+    function erc20Transfer() internal virtual {}
+
     function testTransfer() internal {
-        uint256 balance = ERC20(token).balanceOf(recipient);
         uint256 gas_before = gasleft();
-        ERC20(token).transfer(recipient, transferAmount);
+        erc20Transfer();
         uint256 gas_after = gasleft();
-        assertEq(ERC20(token).balanceOf(recipient), balance + transferAmount);
         string memory res = vm.serializeUint(
             jsonObj,
             "transfer",
@@ -40,25 +39,8 @@ abstract contract ERC20GasProfileBase is Test {
         console.log(res);
     }
 
-    function testTransferFrom() internal {
-        uint256 balance = ERC20(token).balanceOf(recipient);
-        ERC20(token).approve(sender, UINT256_MAX);
-        uint256 gas_before = gasleft();
-        ERC20(token).transferFrom(sender, recipient, transferAmount);
-        uint256 gas_after = gasleft();
-        assertEq(ERC20(token).balanceOf(recipient), balance + transferAmount);
-        string memory res = vm.serializeUint(
-            jsonObj,
-            "transferFrom",
-            gas_before - gas_after
-        );
-        sum += gas_before - gas_after;
-        console.log(res);
-    }
-
     function testBenchmark() external {
         testTransfer();
-        testTransferFrom();
         string memory res = vm.serializeUint(jsonObj, "sum", sum);
         vm.writeJson(res, string.concat("./results/", name, ".json"));
     }
