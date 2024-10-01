@@ -5,15 +5,27 @@ import "src/TestBase.sol";
 import "src/tokens/StandardERC20.sol";
 
 contract StandardERC20Test is ERC20GasProfileBase {
+    StandardERC20 standardERC20;
+
     function setUp() external {
-        StandardERC20 standardERC20 = new StandardERC20();
-        token = address(standardERC20);
+        standardERC20 = new StandardERC20();
+        mintAmount = 1e18;
+        transferAmount = 5e17;
 
         initializeTest("StandardERC20");
+    }
+
+    function erc20Mint() internal override {
         standardERC20.mint(sender, mintAmount);
     }
 
     function erc20Transfer() internal override {
-        ERC20(token).transfer(recipient, transferAmount);
+        standardERC20.transfer(recipient, transferAmount);
+    }
+
+    function erc20BalanceOf(
+        address account
+    ) internal view override returns (uint256) {
+        return standardERC20.balanceOf(account);
     }
 }

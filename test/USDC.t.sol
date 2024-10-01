@@ -35,6 +35,8 @@ contract USDCTest is ERC20GasProfileBase {
         vm.startPrank(Deployer);
         fiatTokenV2_2 = new FiatTokenV2_2();
         proxyContract = new FiatTokenProxy(address(fiatTokenV2_2));
+        mintAmount = 10;
+        transferAmount = 5;
 
         //// These values are dummy values because we only rely on the implementation
         //// deployment for delegatecall logic, not for actual state storage.
@@ -99,7 +101,7 @@ contract USDCTest is ERC20GasProfileBase {
 
         vm.stopPrank();
 
-        vm.prank(minterRoleConfigurator, minterRoleConfigurator);
+        vm.startPrank(minterRoleConfigurator);
         (, retVal) = address(proxyContract).call(
             abi.encodeWithSelector(
                 FiatTokenV1.configureMinter.selector,
@@ -107,27 +109,43 @@ contract USDCTest is ERC20GasProfileBase {
                 type(uint256).max
             )
         );
+        vm.stopPrank();
 
-        // Mint 10 tokens to Alice
-        vm.prank(erc20Vault, erc20Vault);
-        (, retVal) = address(proxyContract).call(
+        initializeTest("USDC");
+    }
+
+    function erc20Mint() internal override {
+        vm.startPrank(erc20Vault);
+        (bool succes, ) = address(proxyContract).call(
             abi.encodeWithSelector(
                 FiatTokenV1.mint.selector,
                 sender,
                 mintAmount
             )
         );
-
-        initializeTest("USDC");
+        console.log(succes);
+        vm.stopPrank();
     }
 
     function erc20Transfer() internal override {
-        address(proxyContract).call(
+        vm.startPrank(sender);
+        (bool success, ) = address(proxyContract).call(
             abi.encodeWithSelector(
                 FiatTokenV1.transfer.selector,
                 recipient,
                 transferAmount
             )
         );
+        console.log(success);
+        vm.stopPrank();
+    }
+
+    function erc20BalanceOf(
+        address account
+    ) internal view override returns (uint256) {
+        (, bytes memory retVal) = address(proxyContract).staticcall(
+            abi.encodeWithSelector(FiatTokenV1.balanceOf.selector, account)
+        );
+        return abi.decode(retVal, (uint256));
     }
 }
