@@ -2,10 +2,11 @@
 
 ## Gas Unit
 
-| Token          | transfer |
-| -------------- | -------- |
-| Standard ERC20 | 41768    |
-| USDC           | 63087    |
+| Token          | transfer    |
+| -------------- | ----------- |
+| Standard ERC20 | 41768       |
+| USDC           | 63087       |
+| USDT           | out-of-date |
 
 # Gas Fee (JOC)
 
