@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity >=0.6.2 <0.9.0;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
@@ -41,7 +41,11 @@ abstract contract ERC20GasProfileBase is Test {
 
     function testBenchmark() external {
         testTransfer();
+        console.log(jsonObj);
         string memory res = vm.serializeUint(jsonObj, "sum", sum);
-        vm.writeJson(res, string.concat("./results/", name, ".json"));
+        vm.writeJson(
+            res,
+            string(abi.encodePacked("./results/", name, ".json"))
+        );
     }
 }
